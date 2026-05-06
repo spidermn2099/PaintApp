@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using PaintApp.Models;
 
 namespace PaintApp.Commands
@@ -8,19 +7,40 @@ namespace PaintApp.Commands
     {
         private List<Shape> shapes;
         private double angle;
-        private Point center;
+        private List<System.Drawing.Point> centers;
+
         public RotateShapeCommand(List<Shape> shapes, double angle)
         {
-            this.shapes = shapes; this.angle = angle;
-            if (shapes.Count > 0)
+            this.shapes = new List<Shape>(shapes);
+            this.angle = angle;
+
+            // Сохраняем центры фигур ДО поворота
+            centers = new List<System.Drawing.Point>();
+            foreach (var shape in shapes)
             {
-                var rect = shapes[0].GetBoundingRect();
-                foreach (var s in shapes) rect = Rectangle.Union(rect, s.GetBoundingRect());
-                center = rect.Center();
+                centers.Add(shape.GetCenter());
             }
         }
-        public void Execute() { foreach (var s in shapes) s.Rotate(angle, center); }
-        public void Undo() { foreach (var s in shapes) s.Rotate(-angle, center); }
-        public void Redo() => Execute();
+
+        public void Execute()
+        {
+            for (int i = 0; i < shapes.Count; i++)
+            {
+                shapes[i].Rotate(angle, centers[i]);
+            }
+        }
+
+        public void Undo()
+        {
+            for (int i = 0; i < shapes.Count; i++)
+            {
+                shapes[i].Rotate(-angle, centers[i]);
+            }
+        }
+
+        public void Redo()
+        {
+            Execute();
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using PaintApp.Models;
@@ -35,13 +36,8 @@ namespace TrapezoidPlugin
 
             using (var pen = new Pen(Pen.Color, Pen.Width))
             {
-                Color fillColor = Color.Transparent;
-                if (Brush is SolidBrush sb) fillColor = sb.Color;
-                if (fillColor != Color.Transparent)
-                {
-                    using (var brush = new SolidBrush(fillColor))
-                        g.FillPolygon(brush, points);
-                }
+                if (Brush is SolidBrush sb && sb.Color != Color.Transparent)
+                    g.FillPolygon(sb, points);
                 g.DrawPolygon(pen, points);
             }
             g.Restore(state);
@@ -62,13 +58,8 @@ namespace TrapezoidPlugin
 
             using (var pen = new Pen(Pen.Color, Pen.Width))
             {
-                Color fillColor = Color.Transparent;
-                if (Brush is SolidBrush sb) fillColor = sb.Color;
-                if (fillColor != Color.Transparent)
-                {
-                    using (var brush = new SolidBrush(fillColor))
-                        g.FillPolygon(brush, points);
-                }
+                if (Brush is SolidBrush sb && sb.Color != Color.Transparent)
+                    g.FillPolygon(sb, points);
                 g.DrawPolygon(pen, points);
             }
         }
@@ -82,18 +73,70 @@ namespace TrapezoidPlugin
             if (topWidth < 10) topWidth = 10;
             if (height < 10) height = 10;
         }
+
         public override bool Contains(Point point) => GetBoundingRect().Contains(point);
         public override void Move(int dx, int dy) => topLeft = new Point(topLeft.X + dx, topLeft.Y + dy);
-        public override void Rotate(double a, Point center) { angle += a; if (angle >= 360) angle -= 360; if (angle < 0) angle += 360; }
+        public override void Rotate(double a, Point center)
+        {
+            topLeft = RotatePoint(topLeft, center, a);
+            angle += a;
+            if (angle >= 360) angle -= 360;
+            if (angle < 0) angle += 360;
+        }
         public override void Resize(Point delta, int handle, Rectangle originalRect)
         {
-            if (handle == 0) { topWidth = originalRect.Width - delta.X; height = originalRect.Height - delta.Y; bottomWidth = topWidth + 40; topLeft = new Point(originalRect.Left + delta.X, originalRect.Top + delta.Y); }
-            else if (handle == 3) { topWidth = originalRect.Width + delta.X; height = originalRect.Height + delta.Y; bottomWidth = topWidth + 40; }
-            if (topWidth < 10) topWidth = 10; if (height < 10) height = 10;
+            if (handle == 0)
+            {
+                topWidth = originalRect.Width - delta.X;
+                height = originalRect.Height - delta.Y;
+                bottomWidth = topWidth + 40;
+                topLeft = new Point(originalRect.Left + delta.X, originalRect.Top + delta.Y);
+            }
+            else if (handle == 3)
+            {
+                topWidth = originalRect.Width + delta.X;
+                height = originalRect.Height + delta.Y;
+                bottomWidth = topWidth + 40;
+            }
+            if (topWidth < 10) topWidth = 10;
+            if (height < 10) height = 10;
         }
         public override Rectangle GetBoundingRect() => new Rectangle(topLeft.X, topLeft.Y, Math.Max(topWidth, bottomWidth), height);
         public override string GetTypeName() => "Trapezoid";
-        public override Shape Clone() { var t = new Trapezoid(); t.topLeft = topLeft; t.topWidth = topWidth; t.bottomWidth = bottomWidth; t.height = height; t.angle = angle; t.ApplyPen(Pen); t.ApplyBrush(Brush); return t; }
+        public override Shape Clone()
+        {
+            var t = new Trapezoid();
+            t.topLeft = topLeft;
+            t.topWidth = topWidth;
+            t.bottomWidth = bottomWidth;
+            t.height = height;
+            t.angle = angle;
+            t.ApplyPen(Pen);
+            t.ApplyBrush(Brush);
+            return t;
+        }
         public override Point GetCenter() => new Point(topLeft.X + (topWidth + bottomWidth) / 4, topLeft.Y + height / 2);
+
+        // Сериализация
+        public override void SaveToDictionary(Dictionary<string, object> data)
+        {
+            base.SaveToDictionary(data);
+            data["TopLeft_X"] = topLeft.X;
+            data["TopLeft_Y"] = topLeft.Y;
+            data["TopWidth"] = topWidth;
+            data["BottomWidth"] = bottomWidth;
+            data["Height"] = height;
+            data["Angle"] = angle;
+        }
+
+        public override void LoadFromDictionary(Dictionary<string, object> data)
+        {
+            base.LoadFromDictionary(data);
+            topLeft = new Point(Convert.ToInt32(data["TopLeft_X"]), Convert.ToInt32(data["TopLeft_Y"]));
+            topWidth = Convert.ToInt32(data["TopWidth"]);
+            bottomWidth = Convert.ToInt32(data["BottomWidth"]);
+            height = Convert.ToInt32(data["Height"]);
+            angle = Convert.ToDouble(data["Angle"]);
+        }
     }
 }

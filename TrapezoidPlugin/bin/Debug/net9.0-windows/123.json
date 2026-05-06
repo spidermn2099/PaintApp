@@ -1,0 +1,84 @@
+{
+  "Layers": [
+    {
+      "Name": "Слой 1",
+      "Visible": true,
+      "Shapes": [
+        {
+          "Type": "Polyline",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "Points": [
+              {
+                "X": 163,
+                "Y": 126
+              },
+              {
+                "X": 376,
+                "Y": 118
+              },
+              {
+                "X": 434,
+                "Y": 314
+              },
+              {
+                "X": 124,
+                "Y": 332
+              },
+              {
+                "X": 167,
+                "Y": 128
+              }
+            ]
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 447,
+            "StartY": 123,
+            "EndX": 598,
+            "EndY": 277
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 694,
+            "StartY": 150,
+            "EndX": 850,
+            "EndY": 328
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 508,
+            "StartY": 432,
+            "EndX": 682,
+            "EndY": 356
+          }
+        },
+        {
+          "Type": "Trapezoid",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1
+          }
+        }
+      ]
+    }
+  ]
+}

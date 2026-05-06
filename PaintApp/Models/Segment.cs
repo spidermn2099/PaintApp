@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace PaintApp.Models
@@ -29,11 +30,41 @@ namespace PaintApp.Models
         }
 
         public override void Move(int dx, int dy) { start.Offset(dx, dy); end.Offset(dx, dy); }
-        public override void Rotate(double angle, Point center) { start = RotatePoint(start, center, angle); end = RotatePoint(end, center, angle); }
-        public override void Resize(Point delta, int handle, Rectangle originalRect) { if (handle == 0) start.Offset(delta); else end.Offset(delta); }
+        public override void Rotate(double angle, Point center)
+        {
+            start = RotatePoint(start, center, angle);
+            end = RotatePoint(end, center, angle);
+        }
+        public override void Resize(Point delta, int handle, Rectangle originalRect)
+        {
+            if (handle == 0) start.Offset(delta);
+            else end.Offset(delta);
+        }
         public override Rectangle GetBoundingRect() => new Rectangle(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y), Math.Abs(end.X - start.X), Math.Abs(end.Y - start.Y));
         public override string GetTypeName() => "Segment";
-        public override Shape Clone() { var s = new Segment { start = this.start, end = this.end }; s.ApplyPen(pen); s.ApplyBrush(brush); return s; }
+        public override Shape Clone()
+        {
+            var s = new Segment { start = this.start, end = this.end };
+            s.ApplyPen(pen);
+            s.ApplyBrush(brush);
+            return s;
+        }
         public override Point GetCenter() => new Point((start.X + end.X) / 2, (start.Y + end.Y) / 2);
+
+        public override void SaveToDictionary(Dictionary<string, object> data)
+        {
+            base.SaveToDictionary(data);
+            data["StartX"] = start.X;
+            data["StartY"] = start.Y;
+            data["EndX"] = end.X;
+            data["EndY"] = end.Y;
+        }
+
+        public override void LoadFromDictionary(Dictionary<string, object> data)
+        {
+            base.LoadFromDictionary(data);
+            start = new Point(Convert.ToInt32(data["StartX"]), Convert.ToInt32(data["StartY"]));
+            end = new Point(Convert.ToInt32(data["EndX"]), Convert.ToInt32(data["EndY"]));
+        }
     }
 }

@@ -1,16 +1,19 @@
 ﻿using System.Collections.Generic;
 
-namespace PaintApp.Commands  // измените на ваше пространство имён
+namespace PaintApp.Commands
 {
     public class CommandManager
     {
         private Stack<ICommand> undoStack = new Stack<ICommand>();
         private Stack<ICommand> redoStack = new Stack<ICommand>();
 
-        public void ExecuteCommand(ICommand command)
+        public bool CanUndo => undoStack.Count > 0;
+        public bool CanRedo => redoStack.Count > 0;
+
+        public void ExecuteCommand(ICommand cmd)
         {
-            command.Execute();
-            undoStack.Push(command);
+            cmd.Execute();
+            undoStack.Push(cmd);
             redoStack.Clear();
         }
 
@@ -18,9 +21,9 @@ namespace PaintApp.Commands  // измените на ваше простран�
         {
             if (undoStack.Count > 0)
             {
-                var command = undoStack.Pop();
-                command.Undo();
-                redoStack.Push(command);
+                ICommand cmd = undoStack.Pop();
+                cmd.Undo();
+                redoStack.Push(cmd);
             }
         }
 
@@ -28,13 +31,10 @@ namespace PaintApp.Commands  // измените на ваше простран�
         {
             if (redoStack.Count > 0)
             {
-                var command = redoStack.Pop();
-                command.Execute();
-                undoStack.Push(command);
+                ICommand cmd = redoStack.Pop();
+                cmd.Redo();
+                undoStack.Push(cmd);
             }
         }
-
-        public bool CanUndo => undoStack.Count > 0;
-        public bool CanRedo => redoStack.Count > 0;
     }
 }

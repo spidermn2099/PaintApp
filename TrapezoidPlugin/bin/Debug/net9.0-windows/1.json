@@ -1,0 +1,104 @@
+{
+  "Layers": [
+    {
+      "Name": "Слой 1",
+      "Visible": true,
+      "Shapes": [
+        {
+          "Type": "Trapezoid",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 129,
+            "StartY": 82,
+            "EndX": 483,
+            "EndY": 344
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 509,
+            "StartY": 219,
+            "EndX": 130,
+            "EndY": 298
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 148,
+            "StartY": 141,
+            "EndX": 386,
+            "EndY": 350
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 436,
+            "StartY": 109,
+            "EndX": 178,
+            "EndY": 252
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 200,
+            "StartY": 74,
+            "EndX": 605,
+            "EndY": 393
+          }
+        },
+        {
+          "Type": "EllipseShape",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "TopLeftX": 820,
+            "TopLeftY": 79,
+            "Width": 5,
+            "Height": 198,
+            "Angle": 0.0
+          }
+        },
+        {
+          "Type": "EllipseShape",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "TopLeftX": 417,
+            "TopLeftY": 113,
+            "Width": 455,
+            "Height": 247,
+            "Angle": 0.0
+          }
+        }
+      ]
+    }
+  ]
+}

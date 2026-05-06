@@ -33,10 +33,17 @@ namespace PaintApp.Helpers
 
     public static class SerializationHelper
     {
+        public static Dictionary<string, Func<Dictionary<string, object>, Shape>> TypeResolvers { get; } = new();
+
+        public static void RegisterType(string typeName, Func<Dictionary<string, object>, Shape> creator)
+        {
+            if (!TypeResolvers.ContainsKey(typeName))
+                TypeResolvers[typeName] = creator;
+        }
+
         public static void SaveToFile(string filename, List<Layer> layers)
         {
-            var doc = new SerializableDocument();
-            doc.Layers = new List<SerializableLayer>();
+            var doc = new SerializableDocument { Layers = new List<SerializableLayer>() };
 
             foreach (var layer in layers)
             {
@@ -49,62 +56,18 @@ namespace PaintApp.Helpers
 
                 foreach (var shape in layer.Shapes)
                 {
-                    var ss = new SerializableShape();
-                    ss.Type = shape.GetType().Name;
                     var data = new Dictionary<string, object>();
-
-                    data["PenColor"] = shape.Pen.Color.ToArgb();
-                    data["PenWidth"] = shape.Pen.Width;
-                    if (shape.Brush is SolidBrush sb)
-                        data["BrushColor"] = sb.Color.ToArgb();
-                    else
-                        data["BrushColor"] = Color.Transparent.ToArgb();
-
-                    switch (shape)
+                    shape.SaveToDictionary(data);
+                    sl.Shapes.Add(new SerializableShape
                     {
-                        case Segment seg:
-                            data["StartX"] = seg.Start.X;
-                            data["StartY"] = seg.Start.Y;
-                            data["EndX"] = seg.End.X;
-                            data["EndY"] = seg.End.Y;
-                            break;
-                        case Polyline poly:
-                            var pts = new List<SerializablePoint>();
-                            foreach (var p in poly.Points)
-                                pts.Add(new SerializablePoint { X = p.X, Y = p.Y });
-                            data["Points"] = pts;
-                            break;
-                        case RectangleShape rect:
-                            data["TopLeftX"] = rect.TopLeft.X;
-                            data["TopLeftY"] = rect.TopLeft.Y;
-                            data["Width"] = rect.Width;
-                            data["Height"] = rect.Height;
-                            data["Angle"] = rect.Angle;
-                            break;
-                        case EllipseShape ell:
-                            data["TopLeftX"] = ell.TopLeft.X;
-                            data["TopLeftY"] = ell.TopLeft.Y;
-                            data["Width"] = ell.Width;
-                            data["Height"] = ell.Height;
-                            data["Angle"] = ell.Angle;
-                            break;
-                        case PolygonShape polyg:
-                            var pts2 = new List<SerializablePoint>();
-                            foreach (var p in polyg.Points)
-                                pts2.Add(new SerializablePoint { X = p.X, Y = p.Y });
-                            data["Points"] = pts2;
-                            data["Radius"] = polyg.Radius;
-                            data["Angle"] = polyg.Angle;
-                            break;
-                    }
-
-                    ss.Data = data;
-                    sl.Shapes.Add(ss);
+                        Type = shape.GetType().Name,
+                        Data = data
+                    });
                 }
                 doc.Layers.Add(sl);
             }
 
-            string json = JsonConvert.SerializeObject(doc, Newtonsoft.Json.Formatting.Indented);
+            string json = JsonConvert.SerializeObject(doc, Formatting.Indented);
             File.WriteAllText(filename, json);
         }
 
@@ -122,82 +85,13 @@ namespace PaintApp.Helpers
 
                 foreach (var ss in sl.Shapes)
                 {
-                    Shape shape = null;
-                    var data = ss.Data;
+                    if (!TypeResolvers.ContainsKey(ss.Type))
+                        continue; // Неизвестный тип (плагин не загружен)
 
-                    switch (ss.Type)
-                    {
-                        case "Segment":
-                            var seg = new Segment();
-                            seg.Start = new Point(Convert.ToInt32(data["StartX"]), Convert.ToInt32(data["StartY"]));
-                            seg.End = new Point(Convert.ToInt32(data["EndX"]), Convert.ToInt32(data["EndY"]));
-                            shape = seg;
-                            break;
-                        case "Polyline":
-                            var poly = new Polyline();
-                            var pts = (Newtonsoft.Json.Linq.JArray)data["Points"];
-                            bool first = true;
-                            foreach (var pt in pts)
-                            {
-                                int x = Convert.ToInt32(pt["X"]);
-                                int y = Convert.ToInt32(pt["Y"]);
-                                if (first)
-                                {
-                                    poly.SetStartPoint(new Point(x, y));
-                                    first = false;
-                                }
-                                else
-                                    poly.AddPoint(new Point(x, y));
-                            }
-                            poly.FinishDrawing();
-                            shape = poly;
-                            break;
-                        case "RectangleShape":
-                            var rect = new RectangleShape();
-                            rect.TopLeft = new Point(Convert.ToInt32(data["TopLeftX"]), Convert.ToInt32(data["TopLeftY"]));
-                            rect.Width = Convert.ToInt32(data["Width"]);
-                            rect.Height = Convert.ToInt32(data["Height"]);
-                            rect.Angle = Convert.ToDouble(data["Angle"]);
-                            shape = rect;
-                            break;
-                        case "EllipseShape":
-                            var ell = new EllipseShape();
-                            ell.TopLeft = new Point(Convert.ToInt32(data["TopLeftX"]), Convert.ToInt32(data["TopLeftY"]));
-                            ell.Width = Convert.ToInt32(data["Width"]);
-                            ell.Height = Convert.ToInt32(data["Height"]);
-                            ell.Angle = Convert.ToDouble(data["Angle"]);
-                            shape = ell;
-                            break;
-                        case "PolygonShape":
-                            var polyg = new PolygonShape();
-                            var pts2 = (Newtonsoft.Json.Linq.JArray)data["Points"];
-                            foreach (var pt in pts2)
-                            {
-                                int x = Convert.ToInt32(pt["X"]);
-                                int y = Convert.ToInt32(pt["Y"]);
-                                polyg.AddPoint(new Point(x, y));
-                            }
-                            polyg.Radius = Convert.ToInt32(data["Radius"]);
-                            polyg.Angle = Convert.ToDouble(data["Angle"]);
-                            shape = polyg;
-                            break;
-                    }
-
+                    var shape = TypeResolvers[ss.Type](ss.Data);
                     if (shape != null)
                     {
-                        Color penColor = Color.FromArgb(Convert.ToInt32(data["PenColor"]));
-                        float penWidth = Convert.ToSingle(data["PenWidth"]);
-                        Color brushColor = Color.FromArgb(Convert.ToInt32(data["BrushColor"]));
-
-                        var newPen = new Pen(penColor, penWidth);
-                        newPen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
-                        newPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;
-                        newPen.LineJoin = System.Drawing.Drawing2D.LineJoin.Round;
-                        shape.ApplyPen(newPen);
-
-                        if (brushColor != Color.Transparent)
-                            shape.ApplyBrush(new SolidBrush(brushColor));
-
+                        shape.LoadFromDictionary(ss.Data);
                         layer.AddShape(shape);
                     }
                 }

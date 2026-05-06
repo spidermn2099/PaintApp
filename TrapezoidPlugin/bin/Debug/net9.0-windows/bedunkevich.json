@@ -1,0 +1,82 @@
+{
+  "Layers": [
+    {
+      "Name": "Слой 1",
+      "Visible": true,
+      "Shapes": [
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 106,
+            "StartY": 116,
+            "EndX": 492,
+            "EndY": 385
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 378,
+            "StartY": 83,
+            "EndX": 862,
+            "EndY": 410
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 434,
+            "StartY": 600,
+            "EndX": 868,
+            "EndY": 490
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 964,
+            "StartY": 226,
+            "EndX": 809,
+            "EndY": 104
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 111,
+            "StartY": 332,
+            "EndX": 150,
+            "EndY": 376
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "StartX": 1002,
+            "StartY": 625,
+            "EndX": 1063,
+            "EndY": 432
+          }
+        }
+      ]
+    }
+  ]
+}

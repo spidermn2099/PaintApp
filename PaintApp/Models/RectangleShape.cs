@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace PaintApp.Models
@@ -39,7 +40,13 @@ namespace PaintApp.Models
         }
 
         public override void SetStartPoint(Point point) => topLeft = point;
-        public override void SetEndPoint(Point point) { width = point.X - topLeft.X; height = point.Y - topLeft.Y; if (width < 5) width = 5; if (height < 5) height = 5; }
+        public override void SetEndPoint(Point point)
+        {
+            width = point.X - topLeft.X;
+            height = point.Y - topLeft.Y;
+            if (width < 5) width = 5;
+            if (height < 5) height = 5;
+        }
         public override bool Contains(Point point) => new Rectangle(topLeft.X, topLeft.Y, width, height).Contains(RotatePoint(point, GetBoundingRect().Center(), -angle));
         public override void Move(int dx, int dy) => topLeft.Offset(dx, dy);
         public override void Rotate(double a, Point center) { angle += a; if (angle >= 360) angle -= 360; if (angle < 0) angle += 360; }
@@ -58,8 +65,37 @@ namespace PaintApp.Models
             if (nw >= 10 && nh >= 10) { width = nw; height = nh; topLeft = nt; }
         }
         public override Rectangle GetBoundingRect() => new Rectangle(topLeft.X, topLeft.Y, width, height);
-        public override string GetTypeName() => "Rectangle";
-        public override Shape Clone() { var r = new RectangleShape { topLeft = this.topLeft, width = this.width, height = this.height, angle = this.angle }; r.ApplyPen(pen); r.ApplyBrush(brush); return r; }
+        public override string GetTypeName() => "RectangleShape";
+        public override Shape Clone()
+        {
+            var r = new RectangleShape();
+            r.topLeft = topLeft;
+            r.width = width;
+            r.height = height;
+            r.angle = angle;
+            r.ApplyPen(pen);
+            r.ApplyBrush(brush);
+            return r;
+        }
         public override Point GetCenter() => GetBoundingRect().Center();
+
+        public override void SaveToDictionary(Dictionary<string, object> data)
+        {
+            base.SaveToDictionary(data);
+            data["TopLeftX"] = topLeft.X;
+            data["TopLeftY"] = topLeft.Y;
+            data["Width"] = width;
+            data["Height"] = height;
+            data["Angle"] = angle;
+        }
+
+        public override void LoadFromDictionary(Dictionary<string, object> data)
+        {
+            base.LoadFromDictionary(data);
+            topLeft = new Point(Convert.ToInt32(data["TopLeftX"]), Convert.ToInt32(data["TopLeftY"]));
+            width = Convert.ToInt32(data["Width"]);
+            height = Convert.ToInt32(data["Height"]);
+            angle = Convert.ToDouble(data["Angle"]);
+        }
     }
 }

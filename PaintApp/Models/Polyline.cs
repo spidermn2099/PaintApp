@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 namespace PaintApp.Models
 {
@@ -8,6 +9,9 @@ namespace PaintApp.Models
     {
         private List<Point> points = new List<Point>();
         private bool isDrawing = true;
+
+        public List<Point> Points { get => points; set => points = value; }
+        public bool IsDrawing => isDrawing;
 
         public override void Draw(Graphics g)
         {
@@ -25,8 +29,6 @@ namespace PaintApp.Models
         public override void SetEndPoint(Point point) { }
         public void AddPoint(Point point) { if (isDrawing) points.Add(point); }
         public void FinishDrawing() => isDrawing = false;
-        public bool IsDrawing => isDrawing;
-        public List<Point> Points => points;
 
         public override bool Contains(Point point)
         {
@@ -91,7 +93,42 @@ namespace PaintApp.Models
         }
 
         public override string GetTypeName() => "Polyline";
-        public override Shape Clone() { var p = new Polyline(); p.points = new List<Point>(points); p.isDrawing = false; p.ApplyPen(pen); p.ApplyBrush(brush); return p; }
+        public override Shape Clone()
+        {
+            var p = new Polyline();
+            p.points = new List<Point>(points);
+            p.isDrawing = false;
+            p.ApplyPen(pen);
+            p.ApplyBrush(brush);
+            return p;
+        }
         public override Point GetCenter() => GetBoundingRect().Center();
+
+        public override void SaveToDictionary(Dictionary<string, object> data)
+        {
+            base.SaveToDictionary(data);
+            var pts = new List<SerializablePoint>();
+            foreach (var pt in points)
+                pts.Add(new SerializablePoint { X = pt.X, Y = pt.Y });
+            data["Points"] = pts;
+            data["IsDrawing"] = isDrawing;
+        }
+
+        public override void LoadFromDictionary(Dictionary<string, object> data)
+        {
+            base.LoadFromDictionary(data);
+            var pts = (List<SerializablePoint>)data["Points"];
+            points.Clear();
+            foreach (var pt in pts)
+                points.Add(new Point(pt.X, pt.Y));
+            isDrawing = Convert.ToBoolean(data["IsDrawing"]);
+        }
+    }
+
+    // Вспомогательный класс для сериализации точки
+    public class SerializablePoint
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
     }
 }

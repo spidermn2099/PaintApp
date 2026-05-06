@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
@@ -41,38 +42,20 @@ namespace PaintApp.Models
         public void ApplyPen(Pen source)
         {
             if (source == null) return;
-            try
-            {
-                float w = (source.Width > 0 && !float.IsNaN(source.Width)) ? source.Width : 2f;
-                var newPen = new Pen(source.Color, w);
-                newPen.StartCap = source.StartCap;
-                newPen.EndCap = source.EndCap;
-                newPen.LineJoin = source.LineJoin;
-                pen = newPen;
-            }
-            catch
-            {
-                pen = new Pen(Color.Black, 2);
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-                pen.LineJoin = LineJoin.Round;
-            }
+            var newPen = new Pen(source.Color, source.Width);
+            newPen.StartCap = source.StartCap;
+            newPen.EndCap = source.EndCap;
+            newPen.LineJoin = source.LineJoin;
+            pen = newPen;
         }
 
         public void ApplyBrush(Brush source)
         {
             if (source == null) return;
-            try
-            {
-                if (source is SolidBrush sb)
-                    brush = new SolidBrush(sb.Color);
-                else
-                    brush = new SolidBrush(Color.White);
-            }
-            catch
-            {
+            if (source is SolidBrush sb)
+                brush = new SolidBrush(sb.Color);
+            else
                 brush = new SolidBrush(Color.White);
-            }
         }
 
         public bool Selected { get => selected; set => selected = value; }
@@ -88,6 +71,36 @@ namespace PaintApp.Models
             double newX = dx * cos - dy * sin;
             double newY = dx * sin + dy * cos;
             return new Point(center.X + (int)Math.Round(newX), center.Y + (int)Math.Round(newY));
+        }
+
+        // ========== Сериализация ==========
+        public virtual void SaveToDictionary(Dictionary<string, object> data)
+        {
+            data["PenColor"] = pen.Color.ToArgb();
+            data["PenWidth"] = pen.Width;
+            data["BrushColor"] = (brush is SolidBrush sb) ? sb.Color.ToArgb() : Color.Transparent.ToArgb();
+            data["Selected"] = selected;
+            data["Layer"] = layer;
+        }
+
+        public virtual void LoadFromDictionary(Dictionary<string, object> data)
+        {
+            int penColor = Convert.ToInt32(data["PenColor"]);
+            float penWidth = Convert.ToSingle(data["PenWidth"]);
+            var newPen = new Pen(Color.FromArgb(penColor), penWidth);
+            newPen.StartCap = LineCap.Round;
+            newPen.EndCap = LineCap.Round;
+            newPen.LineJoin = LineJoin.Round;
+            ApplyPen(newPen);
+
+            int brushColor = Convert.ToInt32(data["BrushColor"]);
+            if (brushColor != Color.Transparent.ToArgb())
+                ApplyBrush(new SolidBrush(Color.FromArgb(brushColor)));
+            else
+                ApplyBrush(new SolidBrush(Color.Transparent));
+
+            selected = Convert.ToBoolean(data["Selected"]);
+            layer = Convert.ToInt32(data["Layer"]);
         }
     }
 

@@ -82,11 +82,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\user\\Desktop\\PaintApp\\TrapezoidPlugin\\TrapezoidPlugin.csproj",
+      "projectUniqueName": "C:\\Users\\user\\Desktop\\ООП\\PaintApp\\TrapezoidPlugin\\TrapezoidPlugin.csproj",
       "projectName": "TrapezoidPlugin",
-      "projectPath": "C:\\Users\\user\\Desktop\\PaintApp\\TrapezoidPlugin\\TrapezoidPlugin.csproj",
+      "projectPath": "C:\\Users\\user\\Desktop\\ООП\\PaintApp\\TrapezoidPlugin\\TrapezoidPlugin.csproj",
       "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\user\\Desktop\\PaintApp\\TrapezoidPlugin\\obj\\",
+      "outputPath": "C:\\Users\\user\\Desktop\\ООП\\PaintApp\\TrapezoidPlugin\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -108,8 +108,8 @@
         "net9.0-windows7.0": {
           "targetAlias": "net9.0-windows",
           "projectReferences": {
-            "C:\\Users\\user\\Desktop\\PaintApp\\PaintApp\\PaintApp.csproj": {
-              "projectPath": "C:\\Users\\user\\Desktop\\PaintApp\\PaintApp\\PaintApp.csproj"
+            "C:\\Users\\user\\Desktop\\ООП\\PaintApp\\PaintApp\\PaintApp.csproj": {
+              "projectPath": "C:\\Users\\user\\Desktop\\ООП\\PaintApp\\PaintApp\\PaintApp.csproj"
             }
           }
         }

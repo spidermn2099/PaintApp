@@ -1,0 +1,72 @@
+{
+  "Layers": [
+    {
+      "Name": "Слой 1",
+      "Visible": true,
+      "Shapes": [
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "Selected": false,
+            "Layer": 0,
+            "StartX": 73,
+            "StartY": 134,
+            "EndX": 299,
+            "EndY": 331
+          }
+        },
+        {
+          "Type": "Trapezoid",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "Selected": false,
+            "Layer": 0
+          }
+        },
+        {
+          "Type": "Trapezoid",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "Selected": false,
+            "Layer": 0
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "Selected": false,
+            "Layer": 0,
+            "StartX": 25,
+            "StartY": 94,
+            "EndX": 587,
+            "EndY": 264
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "Selected": false,
+            "Layer": 0,
+            "StartX": 196,
+            "StartY": 181,
+            "EndX": 337,
+            "EndY": -2
+          }
+        }
+      ]
+    }
+  ]
+}

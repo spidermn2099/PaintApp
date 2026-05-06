@@ -1,0 +1,34 @@
+{
+  "Layers": [
+    {
+      "Name": "Слой 1",
+      "Visible": true,
+      "Shapes": [
+        {
+          "Type": "Trapezoid",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "Selected": false,
+            "Layer": 0
+          }
+        },
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -16777216,
+            "PenWidth": 2.0,
+            "BrushColor": -1,
+            "Selected": false,
+            "Layer": 0,
+            "StartX": 277,
+            "StartY": 75,
+            "EndX": 512,
+            "EndY": 116
+          }
+        }
+      ]
+    }
+  ]
+}

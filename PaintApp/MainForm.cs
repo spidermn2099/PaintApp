@@ -482,7 +482,7 @@
             this.btnMoveToLayer.Name = "btnMoveToLayer";
             this.btnMoveToLayer.Size = new System.Drawing.Size(0, 30);
             this.btnMoveToLayer.TabIndex = 7;
-            this.btnMoveToLayer.Text = "📎 Переместить в слой";
+            this.btnMoveToLayer.Text = "Переместить в слой";
             this.btnMoveToLayer.UseVisualStyleBackColor = true;
             this.btnMoveToLayer.Click += new System.EventHandler(this.btnMoveToLayer_Click);
 

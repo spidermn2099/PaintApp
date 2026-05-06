@@ -67,7 +67,6 @@ namespace PaintApp.Models
         }
 
         public override void SetStartPoint(Point point) { startPoint = point; isDrawing = true; }
-
         public override void SetEndPoint(Point point)
         {
             if (isDrawing)
@@ -82,10 +81,7 @@ namespace PaintApp.Models
             }
         }
 
-        public void AddPoint(Point point)
-        {
-            points.Add(point);
-        }
+        public void AddPoint(Point point) { points.Add(point); }
 
         public override bool Contains(Point point)
         {
@@ -126,14 +122,59 @@ namespace PaintApp.Models
         {
             if (points.Count == 0) return Rectangle.Empty;
             int minX = points[0].X, maxX = points[0].X, minY = points[0].Y, maxY = points[0].Y;
-            foreach (var p in points) { if (p.X < minX) minX = p.X; if (p.X > maxX) maxX = p.X; if (p.Y < minY) minY = p.Y; if (p.Y > maxY) maxY = p.Y; }
+            foreach (var p in points)
+            {
+                if (p.X < minX) minX = p.X;
+                if (p.X > maxX) maxX = p.X;
+                if (p.Y < minY) minY = p.Y;
+                if (p.Y > maxY) maxY = p.Y;
+            }
             return new Rectangle(minX, minY, maxX - minX, maxY - minY);
         }
 
-        public override string GetTypeName() => "Polygon";
+        public override string GetTypeName() => "PolygonShape";
 
-        public override Shape Clone() { var p = new PolygonShape(); p.points = new List<Point>(points); p.center = center; p.radius = radius; p.angle = angle; p.isDrawing = false; p.ApplyPen(pen); p.ApplyBrush(brush); return p; }
+        public override Shape Clone()
+        {
+            var p = new PolygonShape();
+            p.points = new List<Point>(points);
+            p.center = center;
+            p.radius = radius;
+            p.angle = angle;
+            p.isDrawing = false;
+            p.ApplyPen(pen);
+            p.ApplyBrush(brush);
+            return p;
+        }
 
         public override Point GetCenter() => GetBoundingRect().Center();
+
+        // Полиморфная сериализация
+        public override void SaveToDictionary(Dictionary<string, object> data)
+        {
+            base.SaveToDictionary(data);
+            var ptList = new List<SerializablePoint>();
+            foreach (var pt in points)
+                ptList.Add(new SerializablePoint { X = pt.X, Y = pt.Y });
+            data["Points"] = ptList;
+            data["CenterX"] = center.X;
+            data["CenterY"] = center.Y;
+            data["Radius"] = radius;
+            data["Angle"] = angle;
+            data["IsDrawing"] = isDrawing;
+        }
+
+        public override void LoadFromDictionary(Dictionary<string, object> data)
+        {
+            base.LoadFromDictionary(data);
+            var ptList = (List<SerializablePoint>)data["Points"];
+            points.Clear();
+            foreach (var sp in ptList)
+                points.Add(new Point(sp.X, sp.Y));
+            center = new Point(Convert.ToInt32(data["CenterX"]), Convert.ToInt32(data["CenterY"]));
+            radius = Convert.ToInt32(data["Radius"]);
+            angle = Convert.ToDouble(data["Angle"]);
+            isDrawing = Convert.ToBoolean(data["IsDrawing"]);
+        }
     }
 }

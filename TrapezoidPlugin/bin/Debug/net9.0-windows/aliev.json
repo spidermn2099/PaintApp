@@ -1,0 +1,35 @@
+{
+  "Layers": [
+    {
+      "Name": "Слой 1",
+      "Visible": true,
+      "Shapes": [
+        {
+          "Type": "Segment",
+          "Data": {
+            "PenColor": -8323073,
+            "PenWidth": 10.0,
+            "BrushColor": -16711872,
+            "StartX": 513,
+            "StartY": 641,
+            "EndX": 756,
+            "EndY": 321
+          }
+        },
+        {
+          "Type": "EllipseShape",
+          "Data": {
+            "PenColor": -8323073,
+            "PenWidth": 10.0,
+            "BrushColor": -16711872,
+            "TopLeftX": 418,
+            "TopLeftY": 86,
+            "Width": 510,
+            "Height": 365,
+            "Angle": 180.0
+          }
+        }
+      ]
+    }
+  ]
+}

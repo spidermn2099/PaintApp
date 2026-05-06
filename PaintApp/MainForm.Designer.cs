@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
@@ -19,13 +20,56 @@ namespace PaintApp
         {
             InitializeComponent();
 
+            // Регистрация встроенных фигур (фабрики игнорируют параметр data)
+            SerializationHelper.RegisterType("Segment", data => new Segment());
+            SerializationHelper.RegisterType("Polyline", data => new Polyline());
+            SerializationHelper.RegisterType("RectangleShape", data => new RectangleShape());
+            SerializationHelper.RegisterType("EllipseShape", data => new EllipseShape());
+            SerializationHelper.RegisterType("PolygonShape", data => new PolygonShape());
+
             for (int i = 1; i <= 20; i++) cmbThickness.Items.Add(i);
             cmbThickness.SelectedItem = 2;
 
             UpdateLayerList();
             dockPanel.Width = 220;
+
+            // Автоматическая загрузка плагинов из папки Plugins
+            LoadPluginsFromFolder();
+            System.Diagnostics.Debug.WriteLine("Папка Plugins: " + Path.Combine(Application.StartupPath, "Plugins"));
         }
 
+        private void LoadPluginsFromFolder()
+        {
+            string pluginsDir = Path.Combine(Application.StartupPath, "Plugins");
+            if (!Directory.Exists(pluginsDir))
+                Directory.CreateDirectory(pluginsDir);
+
+            foreach (string dllPath in Directory.GetFiles(pluginsDir, "*.dll"))
+            {
+                try
+                {
+                    var assembly = Assembly.LoadFrom(dllPath);
+                    var pluginTypes = assembly.GetTypes().Where(t => typeof(IShapePlugin).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+                    foreach (var type in pluginTypes)
+                    {
+                        var plugin = (IShapePlugin)Activator.CreateInstance(type);
+                        AddPluginToMenu(plugin);
+                    }
+                }
+                catch { /* Пропускаем ошибки */ }
+            }
+        }
+
+        private void AddPluginToMenu(IShapePlugin plugin)
+        {
+            ToolStripMenuItem newItem = new ToolStripMenuItem(plugin.ShapeTypeName);
+            newItem.Click += (s, ev) =>
+            {
+                canvas.SetPlugin(plugin);
+                this.Text = $"Графический редактор - Режим: {plugin.ShapeTypeName}";
+            };
+            ddbShapes.DropDownItems.Add(newItem);
+        }
         private void UpdateLayerList()
         {
             lstLayers.Items.Clear();
@@ -46,26 +90,25 @@ namespace PaintApp
             }
         }
 
+        // --- Меню ---
         private void exitToolStripMenuItem_Click(object sender, EventArgs e) => Close();
         private void undoToolStripMenuItem_Click(object sender, EventArgs e) => canvas.Undo();
         private void redoToolStripMenuItem_Click(object sender, EventArgs e) => canvas.Redo();
         private void copyToolStripMenuItem_Click(object sender, EventArgs e) => canvas.CopySelectedShapes();
         private void pasteToolStripMenuItem_Click(object sender, EventArgs e) => canvas.PasteShapes();
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e) => canvas.DeleteSelectedShapes();
-
         private void deleteAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Удалить все фигуры?", "Подтверждение", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 canvas.DeleteAllShapes();
         }
-
         private void rotate90ToolStripMenuItem_Click(object sender, EventArgs e) => canvas.RotateSelectedShapes(90);
-
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Paint - редактор фигур\nВерсия 2.0", "О программе");
+            MessageBox.Show("Paint - редактор фигур\nВерсия 2.0\n\nФункции:\n- Рисование фигур\n- Слои\n- Undo/Redo\n- Сохранение/загрузка JSON\n- Плагины", "О программе");
         }
 
+        // --- Кнопки фигур ---
         private void btnSegment_Click(object sender, EventArgs e) => canvas.SetDrawingMode(DrawingMode.Segment);
         private void btnPolyline_Click(object sender, EventArgs e) => canvas.SetDrawingMode(DrawingMode.Polyline);
         private void btnEllipse_Click(object sender, EventArgs e) => canvas.SetDrawingMode(DrawingMode.Ellipse);
@@ -73,6 +116,7 @@ namespace PaintApp
         private void btnPolygon_Click(object sender, EventArgs e) => canvas.SetDrawingMode(DrawingMode.Polygon);
         private void btnSelect_Click(object sender, EventArgs e) => canvas.SetDrawingMode(DrawingMode.Select);
 
+        // --- Свойства ---
         private void cmbThickness_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cmbThickness.SelectedItem == null) return;
@@ -117,21 +161,21 @@ namespace PaintApp
             }
         }
 
+        // --- Правка ---
         private void btnUndo_Click(object sender, EventArgs e) => canvas.Undo();
         private void btnRedo_Click(object sender, EventArgs e) => canvas.Redo();
         private void btnCopy_Click(object sender, EventArgs e) => canvas.CopySelectedShapes();
         private void btnPaste_Click(object sender, EventArgs e) => canvas.PasteShapes();
         private void btnDelete_Click(object sender, EventArgs e) => canvas.DeleteSelectedShapes();
-
         private void btnDeleteAll_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Удалить все фигуры?", "Подтверждение", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 canvas.DeleteAllShapes();
         }
-
         private void btnRotateLeft_Click(object sender, EventArgs e) => canvas.RotateSelectedShapes(-15);
         private void btnRotateRight_Click(object sender, EventArgs e) => canvas.RotateSelectedShapes(15);
 
+        // --- Слои ---
         private void btnAddLayer_Click(object sender, EventArgs e)
         {
             string name = Microsoft.VisualBasic.Interaction.InputBox("Название слоя", "Новый слой", $"Слой {canvas.LayerManager.Layers.Count + 1}");
@@ -212,6 +256,7 @@ namespace PaintApp
             }
         }
 
+        // --- Сохранение / загрузка ---
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
@@ -226,7 +271,7 @@ namespace PaintApp
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -247,11 +292,12 @@ namespace PaintApp
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Ошибка загрузки: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
+        // --- Загрузка плагина вручную (если нужна) ---
         private void loadPluginToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
@@ -263,33 +309,21 @@ namespace PaintApp
                 {
                     var assembly = Assembly.LoadFrom(ofd.FileName);
                     var pluginTypes = assembly.GetTypes().Where(t => typeof(IShapePlugin).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
-
                     foreach (var type in pluginTypes)
                     {
                         var plugin = (IShapePlugin)Activator.CreateInstance(type);
                         AddPluginToMenu(plugin);
                     }
-
-                    if (pluginTypes.Count() > 0)
-                        MessageBox.Show($"Загружено {pluginTypes.Count()} плагинов!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (pluginTypes.Any())
+                        MessageBox.Show($"Загружено {pluginTypes.Count()} плагинов!", "Успех");
                     else
-                        MessageBox.Show("В выбранной DLL не найдено плагинов.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("В выбранной DLL не найдено плагинов.", "Ошибка");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ошибка загрузки плагина: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Ошибка загрузки плагина: {ex.Message}", "Ошибка");
                 }
             }
-        }
-
-        private void AddPluginToMenu(IShapePlugin plugin)
-        {
-            ToolStripMenuItem newItem = new ToolStripMenuItem(plugin.ShapeTypeName);
-            newItem.Click += (s, ev) => {
-                canvas.SetPlugin(plugin);
-                this.Text = $"Графический редактор - Режим: {plugin.ShapeTypeName}";
-            };
-            ddbShapes.DropDownItems.Add(newItem);
         }
     }
 }
